@@ -35,9 +35,7 @@ Answer with source citations
 
 ## Embedding Model Evaluation
 
-Three models benchmarked over 12 legal queries. `multilingual-e5-large` (1024d) used in production.
-
-![Embedding Evaluation](assets/eval_embeddings.png)
+Three models benchmarked over 12 legal queries. `multilingual-e5-large` (1024d) used in production: higher latency offset by significantly better retrieval quality.
 
 | Model | Cosine Distance ↓ | Euclidean Distance ↓ | Avg Latency |
 |---|---|---|---|
