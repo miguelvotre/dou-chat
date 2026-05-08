@@ -1,0 +1,16 @@
+.env
+data/
+*.db
+__pycache__/
+.venv/
+*.egg-info/
+dist/
+.DS_Store
+
+
+TODO.md
+.claude/
+app/design/
+default.sqlite
+results/
+tests/
