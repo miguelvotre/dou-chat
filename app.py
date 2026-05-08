@@ -21,13 +21,15 @@ from rag.prompts import QA_TEMPLATE, SYSTEM_PROMPT
 from litellm import completion
 
 # ── Fixed config ──────────────────────────────────────────────────────────────
-LLM_MODEL    = "groq/llama-3.3-70b-versatile"
+LLM_MODEL    = "mistral/magistral-medium-latest"
 LLM_API_BASE = "http://localhost:11434"  # used only for ollama models
 
+# Fallback chain ordered by TruLens eval results (2026-05-08)
+# Magistral > Llama 3.3 > Gemini Flash | Qwen3 not evaluated (used as judge)
 API_FALLBACK_CHAIN: list[tuple[str, str]] = [
-    ("gemini/gemini-2.5-flash",         "Gemini 2.5 Flash"),
-    ("groq/qwen/qwen3-32b",             "Qwen3 32B"),
-    ("mistral/magistral-medium-latest", "Magistral Medium"),
+    ("groq/llama-3.3-70b-versatile",   "Llama 3.3 70B"),
+    ("gemini/gemini-2.5-flash",        "Gemini 2.5 Flash"),
+    ("groq/qwen/qwen3-32b",            "Qwen3 32B"),
 ]
 
 EMBED_MODEL_ID = "intfloat/multilingual-e5-large"

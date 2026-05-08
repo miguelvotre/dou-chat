@@ -13,4 +13,4 @@ TODO.md
 app/design/
 default.sqlite
 results/
-tests/
+evaluation/trulens.sqlite
