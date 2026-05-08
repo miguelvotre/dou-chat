@@ -9,6 +9,12 @@ Flow:
 """
 
 import os
+import sys
+from pathlib import Path
+
+# Ensure project root is on the path when running from a subdirectory (e.g. Streamlit Cloud)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from datetime import date, timedelta
 
 import streamlit as st
