@@ -472,16 +472,9 @@ if prompt:
         if not chunks:
             answer, chunks = t("no_results"), []
         else:
-            use_thinking = not LLM_MODEL.startswith("ollama/")
             try:
-                _lang = st.session_state.lang
-                if use_thinking:
-                    with st.status("💭 " + t("searching"), expanded=True) as thinking:
-                        answer = generate(prompt, chunks, lang=_lang, thinking=thinking)
-                        thinking.update(label="✅ Done", state="complete", expanded=False)
-                else:
-                    with st.spinner(t("searching")):
-                        answer = generate(prompt, chunks, lang=_lang)
+                with st.spinner(t("searching")):
+                    answer = generate(prompt, chunks, lang=st.session_state.lang)
             except Exception as e:
                 answer = f"{t('error_generation')}{e}"
 
