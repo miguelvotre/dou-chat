@@ -4,6 +4,10 @@ DOU Chat — Streamlit
 Usage:
     streamlit run app.py
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -304,15 +308,9 @@ def show_portfolio() -> None:
 def get_db():
     return get_connection()
 
-@st.cache_resource(show_spinner=False)
-def get_embedder():
-    from sentence_transformers import SentenceTransformer
-    return SentenceTransformer(EMBED_MODEL_ID)
-
 def embed_query_local(text: str) -> list[float]:
-    return get_embedder().encode(
-        f"{EMBED_PREFIX}{text}", normalize_embeddings=True,
-    ).tolist()
+    from indexing.embedder import embed_query
+    return embed_query(text)
 
 # ── Generation ────────────────────────────────────────────────────────────────
 def _build_messages(question: str, chunks: list[dict], lang: str = "en") -> list[dict]:
