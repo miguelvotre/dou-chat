@@ -1,6 +1,6 @@
 # DOU Chat
 
-**Live app: https://dou-chat.streamlit.app/**
+**Live app: https://dou-chat-llm.streamlit.app/**
 
 ![DOU Chat](assets/screenshot.png)
 
