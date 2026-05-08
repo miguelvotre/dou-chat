@@ -55,7 +55,7 @@ Three models benchmarked over 5 legal queries with `multilingual-e5-large` (fixe
 | Llama 3.3 70B | 0.50 | 0.48 | 0.56 | 0.51 |
 | Gemini 2.5 Flash | 0.14 | 0.61 | 0.64 | 0.46 |
 
-Magistral Medium wins — notably higher groundedness (0.90 vs 0.56), meaning answers stay closer to retrieved context with less hallucination. Set as production model.
+Magistral Medium wins: notably higher groundedness (0.90 vs 0.56), answers stay closer to retrieved context with less hallucination. Set as production model.
 
 ```bash
 python tests/run_trulens_eval.py --mode api
