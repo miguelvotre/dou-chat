@@ -1,5 +1,7 @@
 # DOU Chat
 
+**Live app: https://dou-chat.streamlit.app/**
+
 ![DOU Chat](assets/screenshot.png)
 
 **Semantic search and Q&A over Brazil's Diário Oficial da União using RAG.**
