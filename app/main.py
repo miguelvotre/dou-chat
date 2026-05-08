@@ -1,12 +1,11 @@
 """
-Main Streamlit app (v2 — with Google OAuth and Phoenix observability).
+Main Streamlit app.
 
 Flow:
-  1. Google OAuth
-  2. Sidebar filters
-  3. Semantic search input
-  4. Relevant acts list
-  5. Follow-up chat over results
+  1. Sidebar filters
+  2. Semantic search input
+  3. Relevant acts list
+  4. Follow-up chat over results
 """
 
 import os
@@ -25,23 +24,6 @@ st.set_page_config(
 
 
 def main():
-    # Observability
-    from observability.setup import init_phoenix
-    if "phoenix_init" not in st.session_state:
-        init_phoenix()
-        st.session_state["phoenix_init"] = True
-
-    # Auth
-    from app.auth import require_auth
-    user = require_auth()
-    if user is None:
-        return
-
-    st.sidebar.write(f"👤 {user.get('name', user.get('email'))}")
-    if st.sidebar.button("Sign out"):
-        st.session_state.clear()
-        st.rerun()
-
     st.title("📋 DOU Chat")
     st.caption("Semantic search over Brazil's Diário Oficial da União")
 
