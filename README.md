@@ -33,6 +33,20 @@ Answer with source citations
 
 ---
 
+## Embedding Model Evaluation
+
+Three models benchmarked over 12 legal queries. `multilingual-e5-large` (1024d) used in production.
+
+![Embedding Evaluation](assets/eval_embeddings.png)
+
+| Model | Cosine Distance ↓ | Euclidean Distance ↓ | Avg Latency |
+|---|---|---|---|
+| **multilingual-e5-large** | **0.164** | **0.571** | 1.475s |
+| BAAI/bge-m3 | 0.458 | 0.955 | 1.052s |
+| LaBSE | 0.601 | 1.094 | 1.068s |
+
+---
+
 ## Features
 
 - Natural language Q&A over DOU publications (Seções 1, 2, 3 and extras)
@@ -41,7 +55,7 @@ Answer with source citations
 - API fallback chain on rate limits: Gemini → Qwen3 → Llama 3.3 → Magistral _(todo)_
 - Local inference support via Ollama (phi4:14b)
 - Bilingual UI (English / Portuguese) _(todo)_
-- Evaluation pipeline with TruLens (answer relevance, context relevance, groundedness) _(todo)_
+- Evaluation pipeline with TruLens (embedding benchmarks, answer relevance, context relevance, groundedness)
 
 ---
 
@@ -50,7 +64,7 @@ Answer with source citations
 | Layer | Technology |
 |---|---|
 | Frontend | Streamlit |
-| Embeddings | `intfloat/multilingual-e5-large`, LaBSE, BAAI/bge-m3 |
+| Embeddings | `intfloat/multilingual-e5-large` (1024d) |
 | Vector store | DuckDB VSS / MotherDuck |
 | LLM (API) | Gemini 2.5 Flash, Qwen3 32B, Llama 3.3 70B, Magistral Medium |
 | LLM (local) | phi4:14b via Ollama |

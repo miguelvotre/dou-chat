@@ -30,8 +30,11 @@ dependencies = [
     "opentelemetry-sdk>=1.25",
 
     # Evaluation
-    "trulens>=1.0",
-    "trulens-providers-litellm>=1.0",
+    "trulens>=2.0",
+    "trulens-dashboard>=2.0",
+    "trulens-providers-litellm>=2.0",
+    "sentence-transformers>=3.0",
+    "numpy>=1.26",
 
     # Frontend
     "streamlit>=1.40",
