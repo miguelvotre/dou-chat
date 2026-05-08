@@ -23,7 +23,7 @@ Vector similarity search (DuckDB VSS / MotherDuck)
 Top-k chunks retrieved with metadata (órgão, seção, data)
      │
      ▼
-LLM generation with grounded context (Gemini / Ollama)
+LLM generation with grounded context (Llama 3.3 via Groq / Ollama)
      │
      ▼
 Answer with source citations
@@ -36,10 +36,10 @@ Answer with source citations
 - Natural language Q&A over DOU publications (Seções 1, 2, 3 and extras)
 - Filters by section, issuing body, and date range
 - Source citations on every answer (órgão, seção, date)
-- API fallback chain on rate limits: Gemini → Qwen3 → Llama 3.3 → Magistral
+- API fallback chain on rate limits: Gemini → Qwen3 → Llama 3.3 → Magistral _(todo)_
 - Local inference support via Ollama (phi4:14b)
-- Bilingual UI (English / Portuguese)
-- Evaluation pipeline with TruLens (answer relevance, context relevance, groundedness)
+- Bilingual UI (English / Portuguese) _(todo)_
+- Evaluation pipeline with TruLens (answer relevance, context relevance, groundedness) _(todo)_
 
 ---
 
@@ -54,7 +54,7 @@ Answer with source citations
 | LLM (local) | phi4:14b via Ollama |
 | LLM router | LiteLLM |
 | Evaluation | TruLens |
-| Observability | Arize Phoenix |
+| Observability | Arize Phoenix _(todo)_ |
 | Ingestion | Python + schedule (Airflow planned) |
 
 ---
@@ -92,7 +92,7 @@ For local inference, start Ollama with `phi4:14b` before running the app.
 
 ---
 
-## Evaluation
+## Evaluation _(todo)_
 
 The evaluation pipeline uses TruLens with LLM-as-judge to score:
 - **Answer relevance** — does the answer address the question?
