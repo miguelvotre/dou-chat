@@ -14,7 +14,7 @@ load_dotenv()
 import streamlit as st
 from datetime import date
 
-st.set_page_config(page_title="DOU Chat", page_icon="📋", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="DOU Chat", page_icon="📋", layout="wide", initial_sidebar_state="auto")
 
 from indexing.store import CHUNK_TABLES, get_connection, similarity_search
 from rag.prompts import QA_TEMPLATE, SYSTEM_PROMPT
@@ -185,10 +185,13 @@ def _inject_css() -> None:
     st.markdown(f"""<style>
 [data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none!important}}
 
-/* sidebar: always visible, no collapse controls */
-[data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"],
-[data-testid="stSidebarCollapseButton"]{{display:none!important}}
-[data-testid="stSidebar"]{{transform:none!important;margin-left:0!important;visibility:visible!important}}
+/* sidebar collapse/expand controls — always visible */
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="stSidebarCollapseButton"]{{
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+}}
 /* sidebar compact layout */
 [data-testid="stSidebarContent"]{{padding-top:1.25rem!important}}
 section[data-testid="stSidebar"]>div{{padding-top:1rem!important}}
@@ -424,10 +427,40 @@ def render_context(chunks: list[dict]) -> None:
             unsafe_allow_html=True,
         )
 
+# ── Mobile: auto-collapse sidebar ────────────────────────────────────────────
+def _inject_mobile_collapse() -> None:
+    """On mobile (<768px), auto-collapse sidebar once per browser session."""
+    import streamlit.components.v1 as components
+    components.html("""
+    <script>
+    (function() {
+        var KEY = 'dou_sidebar_init';
+        if (sessionStorage.getItem(KEY)) return;
+        sessionStorage.setItem(KEY, '1');
+
+        var pw = window.parent ? window.parent.innerWidth : window.innerWidth;
+        if (pw >= 768) return;
+
+        // Poll until the collapse button appears, then click it
+        var attempts = 0;
+        var iv = setInterval(function() {
+            attempts++;
+            var btn = window.parent.document.querySelector(
+                '[data-testid="stSidebarCollapseButton"] button'
+            );
+            if (btn) { btn.click(); clearInterval(iv); return; }
+            if (attempts > 30) clearInterval(iv);
+        }, 100);
+    })();
+    </script>
+    """, height=0, scrolling=False)
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # Render
 # ═════════════════════════════════════════════════════════════════════════════
 _inject_css()
+_inject_mobile_collapse()
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
