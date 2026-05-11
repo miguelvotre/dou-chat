@@ -42,26 +42,35 @@ SECTIONS_PT = ["(todas)", "DO1", "DO2", "DO3", "DO1E", "DO2E", "DO3E"]
 # ── Portfolio ─────────────────────────────────────────────────────────────────
 PORTFOLIO = [
     {
-        "title": "DOU Chat", "title_pt": "DOU Chat",
+        "title": "DOU Chat",
+        "title_pt": "DOU Chat",
         "desc": "AI-powered semantic search and Q&A over Brazil's Official Gazette using RAG.",
         "desc_pt": "Busca semântica e Q&A sobre o Diário Oficial da União com RAG.",
-        "tags": ["RAG", "LLM", "DuckDB", "Streamlit"], "link": "#", "status": "live",
+        "tags": ["RAG", "LLM", "DuckDB", "Streamlit", "MotherDuck", "TruLens", "LLM Observability"],
+        "url_live": "https://dou-chat-llm.streamlit.app",
+        "url_github": "https://github.com/miguelvotre/dou-chat",
+        "status": "live",
+        "current": True,
     },
     {
-        "title": "Dashboard Olist", "title_pt": "Dashboard Olist",
-        "desc": "E-commerce analytics dashboard built on the Olist Brazilian dataset.",
-        "desc_pt": "Dashboard de análise de e-commerce baseado no dataset brasileiro Olist.",
-        "tags": ["Python", "Power BI", "dbt"], "link": "#", "status": "live",
+        "title": "Olist Analytics",
+        "title_pt": "Olist Analytics",
+        "desc": "E-commerce insights dashboard for the Brazilian Olist dataset (2017–2018). dbt + DuckDB + Streamlit.",
+        "desc_pt": "Dashboard de e-commerce sobre o dataset Olist (2017–2018). dbt + DuckDB + Streamlit.",
+        "tags": ["DuckDB", "dbt", "Streamlit", "LLM", "MotherDuck", "Airflow", "Text-to-SQL"],
+        "url_live": "https://olist-ecommerce-analytics-dashboard.streamlit.app",
+        "url_github": "https://github.com/miguelvotre/olist-ecommerce-analytics",
+        "status": "live",
     },
     {
-        "title": "Padel Analytics AI", "title_pt": "Padel Analytics IA",
-        "desc": "", "desc_pt": "",
-        "tags": ["Computer Vision", "AI", "Sports"], "link": None, "status": "soon",
-    },
-    {
-        "title": "GTD + PRM", "title_pt": "GTD + PRM",
-        "desc": "", "desc_pt": "",
-        "tags": ["Productivity", "AI", "CRM"], "link": None, "status": "soon",
+        "title": "Padel IA Analytics",
+        "title_pt": "Padel IA Analytics",
+        "desc": "AI-powered padel match statistics extracted from video using computer vision.",
+        "desc_pt": "Estatísticas de partidas de padel extraídas de vídeo com visão computacional.",
+        "tags": ["Computer Vision", "AI", "Sports Analytics", "Python"],
+        "url_live": None,
+        "url_github": None,
+        "status": "soon",
     },
 ]
 
@@ -95,6 +104,8 @@ T = {
         "proj_live":        "Live",
         "proj_soon":        "Soon",
         "proj_view":        "View project →",
+        "proj_github":      "GitHub →",
+        "portfolio":        "Portfolio Projects",
         "sidebar_hide":     "Hide Sidebar",
         "sidebar_show":     "Show Sidebar",
     },
@@ -126,6 +137,8 @@ T = {
         "proj_live":        "Ativo",
         "proj_soon":        "Em breve",
         "proj_view":        "Ver projeto →",
+        "proj_github":      "GitHub →",
+        "portfolio":        "Portfólio",
         "sidebar_hide":     "Ocultar barra",
         "sidebar_show":     "Mostrar barra",
     },
@@ -176,6 +189,14 @@ def _inject_css() -> None:
 [data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"],
 [data-testid="stSidebarCollapseButton"]{{display:none!important}}
 [data-testid="stSidebar"]{{transform:none!important;margin-left:0!important;visibility:visible!important}}
+/* sidebar compact layout */
+[data-testid="stSidebarContent"]{{padding-top:1.25rem!important}}
+section[data-testid="stSidebar"]>div{{padding-top:1rem!important}}
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"]{{gap:0.75rem!important}}
+[data-testid="stSidebar"] hr{{margin:0.5rem 0!important}}
+[data-testid="stSidebar"] h1{{margin-bottom:0.5rem!important;padding-bottom:0!important}}
+[data-testid="stSidebar"] [data-testid="stExpander"]{{border:none!important;box-shadow:none!important;margin-top:0.4rem!important}}
+[data-testid="stSidebar"] [data-testid="stExpander"] details summary p{{font-size:0.72rem!important}}
 
 /* backgrounds + base text */
 .stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"],[data-testid="stHeader"]{{background-color:{p['bg']}!important;color:{p['text']}!important}}
@@ -278,31 +299,53 @@ hr{{border-color:{p['border']}!important;opacity:0.5}}
 </style>""", unsafe_allow_html=True)
 
 
-# ── Portfolio dialog ──────────────────────────────────────────────────────────
-@st.dialog(t("my_projects") if "lang" in st.session_state else "My Projects", width="large")
-def show_portfolio() -> None:
+# ── Portfolio sidebar expander ────────────────────────────────────────────────
+def render_portfolio_sidebar() -> None:
     lang = st.session_state.lang
     p    = THEMES[st.session_state.theme]
-    for proj in PORTFOLIO:
-        title   = proj["title_pt"] if lang == "pt" else proj["title"]
-        desc    = proj["desc_pt"]  if lang == "pt" else proj["desc"]
-        badge   = T[lang]["proj_soon"] if proj["status"] == "soon" else T[lang]["proj_live"]
-        badge_c = p["badge_soon"] if proj["status"] == "soon" else p["badge_live"]
-        tags_str = "  ".join(f"`{tag}`" for tag in proj["tags"])
-        with st.container(border=True):
-            c1, c2 = st.columns([5, 1])
-            c1.markdown(f"**{title}**")
-            c2.markdown(
-                f'<span style="font-size:11px;color:{badge_c};border:1px solid {badge_c};'
-                f'border-radius:10px;padding:1px 8px;">{badge}</span>',
+    with st.expander(t("portfolio").upper()):
+        for proj in PORTFOLIO:
+            title   = proj["title_pt"] if lang == "pt" else proj["title"]
+            desc    = proj["desc_pt"]  if lang == "pt" else proj["desc"]
+            is_soon = proj["status"] == "soon"
+            badge   = T[lang]["proj_soon"] if is_soon else T[lang]["proj_live"]
+            badge_c = p["badge_soon"] if is_soon else p["badge_live"]
+
+            tags_html = "".join(
+                f'<span style="display:inline-block;font-size:0.62rem;background:{p["bg3"]};'
+                f'color:{p["text2"]};border:1px solid {p["border"]};border-radius:4px;'
+                f'padding:1px 5px;margin:1px 2px 1px 0;">{tag}</span>'
+                for tag in proj["tags"]
+            )
+
+            links_html = ""
+            if proj.get("url_live") and not proj.get("current"):
+                links_html += (
+                    f'<a href="{proj["url_live"]}" target="_blank" style="font-size:0.7rem;'
+                    f'color:#4a86c8;text-decoration:none;">{T[lang]["proj_view"]}</a>'
+                )
+            if proj.get("url_github"):
+                if links_html:
+                    links_html += '<span style="color:#aaa;margin:0 4px;">·</span>'
+                links_html += (
+                    f'<a href="{proj["url_github"]}" target="_blank" style="font-size:0.7rem;'
+                    f'color:#4a86c8;text-decoration:none;">{T[lang]["proj_github"]}</a>'
+                )
+
+            st.markdown(
+                f'<div style="margin-bottom:10px;">'
+                f'<div style="margin-bottom:3px;">'
+                f'<span style="font-size:0.8rem;font-weight:700;color:{p["text"]};">{title}</span>'
+                f'<span style="font-size:0.62rem;color:{badge_c};border:1px solid {badge_c};'
+                f'border-radius:8px;padding:1px 6px;margin-left:6px;">{badge}</span>'
+                f'</div>'
+                f'<p style="font-size:0.68rem;color:{p["text2"]};margin:0 0 4px;'
+                f'text-transform:uppercase;line-height:1.35;">{desc}</p>'
+                f'<div style="margin-bottom:4px;">{tags_html}</div>'
+                f'<div>{links_html}</div>'
+                f'</div>',
                 unsafe_allow_html=True,
             )
-            if desc:
-                st.caption(desc)
-            if tags_str:
-                st.markdown(tags_str)
-            if proj.get("link") and proj["link"] != "#":
-                st.markdown(f'[{T[lang]["proj_view"]}]({proj["link"]})')
 
 
 # ── Cache ─────────────────────────────────────────────────────────────────────
@@ -390,6 +433,10 @@ _inject_css()
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title(t("settings"))
+    lang_label = "🇧🇷 Português" if st.session_state.lang == "en" else "🇺🇸 English"
+    if st.button(lang_label, use_container_width=True):
+        st.session_state.lang = "pt" if st.session_state.lang == "en" else "en"
+        st.rerun()
     top_k = st.slider(t("retrieved_chunks"), 2, 15, 6)
     st.divider()
     st.markdown(f"**{t('filters')}**")
@@ -403,11 +450,8 @@ with st.sidebar:
     if st.button(t("clear_chat"), use_container_width=True):
         st.session_state.messages = []
         st.rerun()
-    # TODO: re-add language toggle, My Projects and Clear Cache buttons
-
-# Trigger portfolio dialog (must be outside sidebar)
-if st.session_state.pop("_open_portfolio", False):
-    show_portfolio()
+    st.divider()
+    render_portfolio_sidebar()
 
 # ── Title (below gear row) ────────────────────────────────────────────────────
 st.markdown(

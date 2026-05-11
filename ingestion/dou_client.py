@@ -91,6 +91,15 @@ class INLABSClient:
         resp.raise_for_status()
 
         # INLABS retorna um ZIP com um XML por ato — combina todos num único documento
+        # Se o conteúdo não for um ZIP válido, a sessão provavelmente expirou: re-autentica e tenta de novo
+        try:
+            zf_test = zipfile.ZipFile(BytesIO(resp.content))
+            zf_test.close()
+        except zipfile.BadZipFile:
+            self._token = None
+            self._ensure_auth()
+            raise  # tenacity vai fazer retry
+
         with zipfile.ZipFile(BytesIO(resp.content)) as zf:
             xml_files = [f for f in zf.namelist() if f.endswith(".xml")]
             if not xml_files:

@@ -9,6 +9,7 @@ dist/
 
 
 TODO.md
+COMMANDS.md
 .claude/
 app/design/
 default.sqlite
