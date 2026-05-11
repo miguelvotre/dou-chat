@@ -185,8 +185,7 @@ def _inject_css() -> None:
     st.markdown(f"""<style>
 [data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none!important}}
 
-/* sidebar collapse/expand controls — always visible */
-[data-testid="stSidebarCollapsedControl"],
+/* keep native collapse button visible inside open sidebar */
 [data-testid="stSidebarCollapseButton"]{{
     display:flex!important;
     visibility:visible!important;
@@ -428,29 +427,89 @@ def render_context(chunks: list[dict]) -> None:
         )
 
 # ── Mobile: auto-collapse sidebar ────────────────────────────────────────────
-def _inject_mobile_collapse() -> None:
-    """On mobile (<768px), auto-collapse sidebar once per browser session."""
+def _inject_sidebar_toggle() -> None:
+    """
+    Inject a floating hamburger button (☰) in the top-left corner of the app.
+    Visible only when sidebar is closed. On mobile, auto-collapses once per session.
+    """
     import streamlit.components.v1 as components
     components.html("""
     <script>
     (function() {
-        var KEY = 'dou_sidebar_init';
-        if (sessionStorage.getItem(KEY)) return;
-        sessionStorage.setItem(KEY, '1');
+        var doc = window.parent.document;
 
-        var pw = window.parent ? window.parent.innerWidth : window.innerWidth;
-        if (pw >= 768) return;
+        // ── Floating toggle button ──────────────────────────────────────────
+        if (!doc.getElementById('dou-sidebar-fab')) {
+            var fab = doc.createElement('button');
+            fab.id = 'dou-sidebar-fab';
+            fab.innerHTML = '&#9776;';
+            fab.title = 'Open menu';
+            fab.style.cssText = [
+                'position:fixed',
+                'top:10px',
+                'left:10px',
+                'z-index:9999999',
+                'width:36px',
+                'height:36px',
+                'border-radius:6px',
+                'border:1px solid #d4d6de',
+                'background:#ffffff',
+                'color:#0e1117',
+                'font-size:18px',
+                'cursor:pointer',
+                'display:none',
+                'align-items:center',
+                'justify-content:center',
+                'box-shadow:0 2px 6px rgba(0,0,0,0.12)',
+                'line-height:1',
+                'padding:0',
+            ].join(';');
 
-        // Poll until the collapse button appears, then click it
-        var attempts = 0;
-        var iv = setInterval(function() {
-            attempts++;
-            var btn = window.parent.document.querySelector(
-                '[data-testid="stSidebarCollapseButton"] button'
-            );
-            if (btn) { btn.click(); clearInterval(iv); return; }
-            if (attempts > 30) clearInterval(iv);
+            fab.onclick = function() {
+                // Try native expand button first, fallback to collapse button
+                var btn = doc.querySelector('[data-testid="stSidebarCollapsedControl"] button')
+                       || doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
+                if (btn) btn.click();
+            };
+            doc.body.appendChild(fab);
+        }
+
+        // ── Show/hide FAB based on sidebar state ────────────────────────────
+        function updateFab() {
+            var fab    = doc.getElementById('dou-sidebar-fab');
+            var sidebar = doc.querySelector('[data-testid="stSidebar"]');
+            if (!fab || !sidebar) return;
+            var isCollapsed = sidebar.getAttribute('aria-expanded') === 'false'
+                           || sidebar.style.transform === 'translateX(-100%)'
+                           || sidebar.offsetWidth < 50;
+            fab.style.display = isCollapsed ? 'flex' : 'none';
+        }
+
+        // Poll until sidebar renders, then observe changes
+        var ready = setInterval(function() {
+            var sidebar = doc.querySelector('[data-testid="stSidebar"]');
+            if (!sidebar) return;
+            clearInterval(ready);
+            updateFab();
+            new MutationObserver(updateFab).observe(sidebar, {
+                attributes: true, attributeFilter: ['style', 'aria-expanded']
+            });
         }, 100);
+
+        // ── Mobile auto-collapse (once per session) ─────────────────────────
+        if (!sessionStorage.getItem('dou_sidebar_init')) {
+            sessionStorage.setItem('dou_sidebar_init', '1');
+            var pw = window.parent ? window.parent.innerWidth : window.innerWidth;
+            if (pw < 768) {
+                var attempts = 0;
+                var iv = setInterval(function() {
+                    attempts++;
+                    var btn = doc.querySelector('[data-testid="stSidebarCollapseButton"] button');
+                    if (btn) { btn.click(); clearInterval(iv); return; }
+                    if (attempts > 30) clearInterval(iv);
+                }, 100);
+            }
+        }
     })();
     </script>
     """, height=0, scrolling=False)
@@ -460,7 +519,7 @@ def _inject_mobile_collapse() -> None:
 # Render
 # ═════════════════════════════════════════════════════════════════════════════
 _inject_css()
-_inject_mobile_collapse()
+_inject_sidebar_toggle()
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
